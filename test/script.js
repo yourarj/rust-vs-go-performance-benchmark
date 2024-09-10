@@ -1,6 +1,5 @@
 import http from 'k6/http';
-import { check, randomSeed } from 'k6';
-import { sleep } from 'k6';
+import check from 'k6';
 
 // Define the options for the test
 export const options = {
@@ -16,10 +15,15 @@ export const options = {
 };
 
 // Load user data from the JSON file
-// const users = JSON.parse(open('./users.json'));
-const users = JSON.parse(open('./users_95.json'));
+const users = JSON.stringify(JSON.parse(open('./users_95.json')));
 
-const url = 'http://127.0.0.1:8080/people'; // The API endpoint
+// server uri
+const server_base = '127.0.0.1';
+
+// server port
+const port = '8080';
+
+const url = `http://${server_base}:${port}/people`; // The API endpoint
 
 const params = {
     headers: {
@@ -29,13 +33,13 @@ const params = {
 
 export default function () {
     // Make the HTTP POST request to the API with the loaded user data
-    const res = http.post(url, JSON.stringify(users), params);
+    const res = http.post(url, users, params);
 
     // Check that the response status is 200
     check(res, {
         'status is `200`': (r) => r.status === 200,
         'count is `95`': (r) => r.body === "Received 95 people",
+        'Requests are `HTTP/1.1`': (r) => r.proto === "HTTP/1.1",
+        'Requests are NOT `HTTP/2.0`': (r) => r.proto !== "HTTP/2.0",
     });
-
-    sleep(1); // Pause for 1 second between iterations
 }

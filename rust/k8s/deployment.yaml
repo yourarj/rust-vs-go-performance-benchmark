@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rust-http-server-deployment
+  labels:
+    app: rust-http
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rust-http
+  template:
+    metadata:
+      labels:
+        app: rust-http
+    spec:
+      containers:
+      - name: rust-server
+        image: localhost:32000/rust:actix
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "1"
+            memory: "2Gi"
